@@ -1,0 +1,38 @@
+name: Онлайн-статус
+
+# Лёгкий частый воркфлоу: пишет online.json в ветку live (кто на сервере сейчас).
+# Побочно держит репозиторий активным -> основной update-map не уснёт через 60 дней.
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # каждые ~10 минут (GitHub-крон неточный)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: online
+  cancel-in-progress: true
+
+jobs:
+  online:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Считать статус сервера
+        env:
+          EXAROTON_TOKEN: ${{ secrets.EXAROTON_TOKEN }}
+        run: python3 scripts/fetch-online.py > /tmp/online.json && cat /tmp/online.json
+
+      - name: Опубликовать в ветку live
+        run: |
+          git config user.name "map-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git fetch origin live 2>/dev/null && git checkout live || git checkout --orphan live
+          # оставить в ветке только online.json
+          git rm -rf --cached . >/dev/null 2>&1 || true
+          cp /tmp/online.json online.json
+          git add -f online.json
+          git commit -m "online $(date -u +%FT%TZ)" || { echo "без изменений"; exit 0; }
+          git push origin live

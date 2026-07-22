@@ -76,12 +76,13 @@ try:
 except Exception as e:
     print(f"warn: townblocks недоступны: {e}", file=sys.stderr)
 
-# --- markers.json (squaremap): прямоугольник на чанк ----------------------
-markers = []
+# --- markers.json (squaremap): границы (прямоуг. на чанк) + подписи --------
+area = []    # заливка территорий
+labels = []  # постоянные подписи названий в центре города
 for town in by_town.values():
     for cx, cz in town["chunks"]:
         x0, z0 = cx * 16, cz * 16
-        markers.append({
+        area.append({
             "type": "rectangle",
             "points": [{"x": x0, "z": z0}, {"x": x0 + 16, "z": z0 + 16}],
             "color": town["color"], "weight": 1, "opacity": 0.9,
@@ -89,12 +90,25 @@ for town in by_town.values():
             "tooltip": {"content": f"<b>{town['name']}</b>" + (f"<br/>мэр: {town['mayor']}" if town['mayor'] else ""),
                         "sticky": True},
         })
+    # подпись: невидимый круг в центре города + постоянный tooltip с названием
+    if town["chunks"]:
+        xs = [c[0] for c in town["chunks"]]
+        zs = [c[1] for c in town["chunks"]]
+        cx = (min(xs) + max(xs) + 1) / 2 * 16
+        cz = (min(zs) + max(zs) + 1) / 2 * 16
+        labels.append({
+            "type": "circle", "center": {"x": cx, "z": cz}, "radius": 1,
+            "color": "#00000000", "fillColor": "#00000000", "fillOpacity": 0, "opacity": 0,
+            "tooltip": {"content": town["name"], "permanent": True, "direction": "center",
+                        "className": "town-label"},
+        })
 
-layers = [{
-    "id": "towny", "name": "Города", "control": True, "hide": False,
-    "order": 10, "z_index": 999, "pane": "", "css": "",
-    "markers": markers,
-}]
+layers = [
+    {"id": "towny", "name": "Границы городов", "control": True, "hide": False,
+     "order": 10, "z_index": 998, "pane": "", "css": "", "markers": area},
+    {"id": "towny_labels", "name": "Названия городов", "control": True, "hide": False,
+     "order": 11, "z_index": 999, "pane": "", "css": "", "markers": labels},
+]
 with open(MARKERS_OUT, "w", encoding="utf-8") as f:
     json.dump(layers, f, ensure_ascii=False)
 

@@ -29,3 +29,26 @@
 #town-nav .tn-plots { color: #9aa; font-size: 11px; flex: 0 0 auto; }
 #town-nav .tn-empty { padding: 10px; color: #9aa; text-align: center; }
 @media (max-width: 600px) { #town-nav { width: 170px; top: 8px; right: 8px; } }
+
+/* Постоянные подписи названий городов на карте */
+.leaflet-tooltip.town-label {
+  background: transparent; border: 0; box-shadow: none; padding: 0;
+  color: #fff; font-weight: 700; font-size: 13px; white-space: nowrap;
+  text-shadow: 0 0 3px #000, 0 0 3px #000, 1px 1px 2px #000; pointer-events: none;
+}
+.leaflet-tooltip.town-label::before { display: none; }
+
+/* Бейдж "онлайн" */
+#online-badge {
+  position: fixed; top: 10px; left: 60px; z-index: 1000;
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(34,34,34,.92); color: #eee; border-radius: 8px;
+  padding: 7px 12px; font: 13px/1 -apple-system,"Segoe UI",Roboto,sans-serif;
+  box-shadow: 0 2px 12px rgba(0,0,0,.4); backdrop-filter: blur(3px);
+  max-width: 46vw; overflow: hidden;
+}
+#online-badge .ob-dot { width: 9px; height: 9px; border-radius: 50%; background: #6b6b6b; flex: 0 0 auto; }
+#online-badge.ob-live .ob-dot { background: #4caf50; box-shadow: 0 0 6px #4caf50; }
+#online-badge .ob-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#online-badge .ob-names { color: #9aa; }
+@media (max-width: 600px) { #online-badge { max-width: 40vw; left: 56px; } }

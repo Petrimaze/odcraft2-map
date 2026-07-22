@@ -12,8 +12,8 @@ import json, os, pathlib, shutil, sys
 site = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "_site")
 here = pathlib.Path(__file__).parent
 
-# 1) файлы панели
-for f in ("nav.js", "nav.css"):
+# 1) файлы панели и бейджа
+for f in ("nav.js", "nav.css", "online.js"):
     shutil.copy(here / f, site / f)
 
 # 2) index.html
@@ -23,6 +23,8 @@ if "nav.css" not in html:
     html = html.replace("</head>", '  <link rel="stylesheet" href="./nav.css">\n</head>', 1)
 if "nav.js" not in html:
     html = html.replace("</body>", '  <script src="./nav.js"></script>\n</body>', 1)
+if "online.js" not in html:
+    html = html.replace("</body>", '  <script src="./online.js"></script>\n</body>', 1)
 html = html.replace("<title></title>", "<title>Карта odcraft2</title>", 1)
 idx.write_text(html, encoding="utf-8")
 
