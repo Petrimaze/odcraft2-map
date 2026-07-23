@@ -52,3 +52,19 @@
 #online-badge .ob-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #online-badge .ob-names { color: #9aa; }
 @media (max-width: 600px) { #online-badge { max-width: 40vw; left: 56px; } }
+
+/* Переключатель миров + структура тела панели */
+#town-nav .tn-body { display: flex; flex-direction: column; overflow: hidden; }
+#town-nav.tn-collapsed .tn-body { display: none; }
+#town-nav .tn-worlds { display: flex; gap: 5px; padding: 8px 8px 6px; flex-wrap: wrap; }
+#town-nav .tn-world {
+  flex: 1 1 auto; padding: 6px 8px; border: 1px solid rgba(255,255,255,.14); border-radius: 6px;
+  background: rgba(255,255,255,.05); color: #cfcfcf; cursor: pointer; font-size: 12px; white-space: nowrap;
+}
+#town-nav .tn-world:hover { background: rgba(255,255,255,.14); }
+#town-nav .tn-world.tn-active { background: #4B6AC8; border-color: #4B6AC8; color: #fff; font-weight: 700; cursor: default; }
+#town-nav .tn-sub {
+  padding: 6px 11px 4px; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; color: #9aa; border-top: 1px solid rgba(255,255,255,.08);
+}
+#town-nav .tn-sub .tn-count { font-weight: 400; text-transform: none; }
