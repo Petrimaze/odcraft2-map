@@ -76,10 +76,14 @@ try:
 except Exception as e:
     print(f"warn: townblocks недоступны: {e}", file=sys.stderr)
 
-# --- markers.json (squaremap): границы (прямоуг. на чанк) + подписи --------
+# --- markers.json (squaremap): границы чанков + метка-точка центра города ---
+# squaremap рендерит маркеры на Canvas -> постоянные (permanent) подписи Leaflet
+# не поддерживаются. Название показываем через tooltip при наведении на территорию
+# (sticky) и popup по клику на метку центра.
 area = []    # заливка территорий
-labels = []  # постоянные подписи названий в центре города
+labels = []  # метки-точки центров городов (клик/наведение -> название)
 for town in by_town.values():
+    tip = f"<b>{town['name']}</b>" + (f"<br/>мэр: {town['mayor']}" if town['mayor'] else "")
     for cx, cz in town["chunks"]:
         x0, z0 = cx * 16, cz * 16
         area.append({
@@ -87,26 +91,25 @@ for town in by_town.values():
             "points": [{"x": x0, "z": z0}, {"x": x0 + 16, "z": z0 + 16}],
             "color": town["color"], "weight": 1, "opacity": 0.9,
             "fillColor": town["color"], "fillOpacity": 0.28,
-            "tooltip": {"content": f"<b>{town['name']}</b>" + (f"<br/>мэр: {town['mayor']}" if town['mayor'] else ""),
-                        "sticky": True},
+            "tooltip": {"content": tip, "sticky": True},
         })
-    # подпись: невидимый круг в центре города + постоянный tooltip с названием
     if town["chunks"]:
         xs = [c[0] for c in town["chunks"]]
         zs = [c[1] for c in town["chunks"]]
         cx = (min(xs) + max(xs) + 1) / 2 * 16
         cz = (min(zs) + max(zs) + 1) / 2 * 16
         labels.append({
-            "type": "circle", "center": {"x": cx, "z": cz}, "radius": 1,
-            "color": "#00000000", "fillColor": "#00000000", "fillOpacity": 0, "opacity": 0,
-            "tooltip": {"content": town["name"], "permanent": True, "direction": "center",
-                        "className": "town-label"},
+            "type": "circle", "center": {"x": cx, "z": cz}, "radius": 5,
+            "color": "#ffffff", "weight": 2, "opacity": 0.9,
+            "fillColor": town["color"], "fillOpacity": 1,
+            "tooltip": {"content": tip, "sticky": True},
+            "popup": {"content": tip},
         })
 
 layers = [
     {"id": "towny", "name": "Границы городов", "control": True, "hide": False,
      "order": 10, "z_index": 998, "pane": "", "css": "", "markers": area},
-    {"id": "towny_labels", "name": "Названия городов", "control": True, "hide": False,
+    {"id": "towny_centers", "name": "Центры городов", "control": True, "hide": False,
      "order": 11, "z_index": 999, "pane": "", "css": "", "markers": labels},
 ]
 with open(MARKERS_OUT, "w", encoding="utf-8") as f:
@@ -126,4 +129,4 @@ for town in sorted(by_town.values(), key=lambda t: -len(t["chunks"])):
 with open(NAV_OUT, "w", encoding="utf-8") as f:
     json.dump({"towns": nav}, f, ensure_ascii=False)
 
-print(f"городов: {len(nav)}, чанков: {len(markers)}", file=sys.stderr)
+print(f"городов: {len(nav)}, чанков: {len(area)}, подписей: {len(labels)}", file=sys.stderr)
